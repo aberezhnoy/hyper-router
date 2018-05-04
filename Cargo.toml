@@ -1,0 +1,8 @@
+[package]
+name = "test-hyper"
+version = "0.1.0"
+authors = ["Andrew Berezhnoy <berezhnoy.aa@esphere.ru>"]
+
+[dependencies]
+hyper = "0.11"
+futures = "0.1"
