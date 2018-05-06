@@ -1,8 +1,9 @@
+extern crate futures;
 extern crate hyper;
 
 use std::collections::HashMap;
-use hyper::Method;
-use hyper::server::Request;
+use hyper::server::{Request, Response, Service};
+use futures::future::Future;
 
 use router::middleware::{Middleware, MiddlewareCallback};
 
@@ -11,19 +12,19 @@ pub struct Router {
 }
 
 impl Router {
-    pub fn new() -> Router {
+    pub fn new() -> Self {
         return Router {
             routes: HashMap::new()
         };
     }
 
-    pub fn add(&mut self, path: &str, middleware: Middleware) -> &Router {
+    pub fn add(&mut self, path: &str, middleware: Middleware) -> &Self {
         self.routes.insert(String::from(path), middleware);
 
         return self;
     }
 
-    pub fn invoke(&self, request: &Request) -> Result<(), ()> {
+    pub fn invoke(&self, request: &Request) -> Result<Response, ()> {
         let m = self.routes.get(request.path());
 
         if m.is_none() {
@@ -40,22 +41,30 @@ impl Router {
 
         let _steps = steps.unwrap();
 
-        self.do_call(_steps, request, 0);
+        let mut response = Response::new();
+        self.do_call(_steps, &request, &mut response,0);
 
-        return Ok(());
+        return Ok(response);
     }
 
-    pub fn do_call(&self, steps: &Vec<MiddlewareCallback>, request: &Request, index: usize) {
-        let m: Option<&MiddlewareCallback> = steps.get(index);
+    fn do_call(&self, steps: &Vec<MiddlewareCallback>, request: &Request, response: &mut Response, _index: usize) {
+        let mut ctx: HashMap<&str, usize> = HashMap::new();
 
-        if m.is_none() {
-            return;
+        for step in steps {
+            step(request, response, &mut ctx);
         }
+    }
+}
 
-        let x = m.unwrap();
+impl Service for Router {
+    type Request = Request;
+    type Response = Response;
+    type Error = hyper::Error;
+    type Future = Box<Future<Item=Self::Response, Error=Self::Error>>;
 
-        x(request, &|| {
-            self.do_call(steps, request, index + 1);
-        });
+    fn call(&self, req: Self::Request) -> Self::Future {
+        let resp = self.invoke(&req).unwrap();
+
+        return Box::new(futures::future::ok(resp));
     }
 }

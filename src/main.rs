@@ -1,22 +1,22 @@
 extern crate hyper;
 extern crate futures;
 
-mod echoservice;
-
 mod router;
 use router::router::Router;
 use router::middleware::Middleware;
 
-use hyper::server::Request;
-
-use hyper::Method::{Get};
+use hyper::server::{Request, Response};
+use hyper::Method::{Get, Post};
 use hyper::Uri;
-use hyper::HttpVersion;
-use hyper::Headers;
 
+use std::collections::HashMap;
+
+/*use hyper::HttpVersion;
+use hyper::Headers;
 use hyper::server::Http;
-use echoservice::EchoService;
-use hyper::Server;
+use hyper::Server;*/
+
+
 
 fn main() {
     /*let addr = "127.0.0.1:3000"
@@ -31,24 +31,29 @@ fn main() {
         .run()
         .unwrap();*/
 
+    /*let mut router = Router::new();
 
-    let mut m1 = Middleware::new();
-    m1.get(vec![
-        |r: &Request, next| {
-            println!("s1 {}", r.path());
-            next();
-        },
+    router.add("/p2", Middleware::new()
+        .post(vec![
+            |req: &Request, _resp: &mut Response, _ctx: &mut HashMap<&str, usize>| {
+                _resp.headers_mut().set_raw("h1", "v1");
 
-        |r: &Request, next| {
-            println!("s2 {}", r.path());
-            next();
-        }
-    ]);
+                let x = *String::from("sfd");
 
-    let mut r = Router::new();
-    r.add("/p1", m1);
+                //_ctx.insert("key1", x);
 
-    let req: Request = Request::new(Get, "/p1".parse::<Uri>().unwrap());
+                println!("Hey2 {}", req.path());
+            }
+        ])
+    );
 
-    r.invoke(&req);
+    let resp = router
+        .invoke(&mut Request::new(Post, "/p2".parse::<Uri>().unwrap()))
+        .expect("error");
+
+    println!("{:#?}", resp);*/
+}
+
+fn test() {
+    //let map: HashMap<&str, > = HashMap::new();
 }
