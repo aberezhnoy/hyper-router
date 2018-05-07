@@ -4,6 +4,8 @@ extern crate futures;
 mod router;
 use router::router::Router;
 use router::middleware::Middleware;
+use router::utils::InsertBoxed;
+use router::utils::get_downcast_ref;
 
 use hyper::server::{Request, Response};
 use hyper::Method::{Get, Post};
@@ -50,7 +52,6 @@ fn main() {
     println!("{:#?}", resp);*/
 
     let mut m: HashMap<&str, Box<Any>> = HashMap::new();
-
     m.insert("x", Box::new(String::from("my val")));
 
     /*let s = String::from("my str");
@@ -63,7 +64,14 @@ fn main() {
 
     //println!("{:?}", r.downcast_ref::<String>());
 
-    println!("{:?}", m.get("x").unwrap().downcast_ref::<String>());
+    //println!("{:?}", m.get("x").unwrap().downcast_ref::<String>());
+
+    //println!("{:?}", m.get_downcast_ref(&"x"));
+
+    //::<String>
+
+    //m.get_downcast_ref(&"x");
+    let ss = get_downcast_ref::<String>("x", m);
 }
 
 
