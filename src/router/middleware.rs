@@ -23,8 +23,20 @@ impl Middleware {
         return self;
     }
 
+    pub fn get_(mut self, step: MiddlewareCallback) -> Self {
+        self.steps.insert(Method::Get, vec![step]);
+
+        return self;
+    }
+
     pub fn post(mut self, steps: Vec<MiddlewareCallback>) -> Self {
         self.steps.insert(Method::Post, steps);
+
+        return self;
+    }
+
+    pub fn post_(mut self, step: MiddlewareCallback) -> Self {
+        self.steps.insert(Method::Post, vec![step]);
 
         return self;
     }
