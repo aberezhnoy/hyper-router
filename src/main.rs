@@ -19,8 +19,30 @@ use hyper::Headers;
 use hyper::server::Http;
 use hyper::Server;*/
 
+#[derive(Debug)]
 struct MyObj {
-    my_str: String
+    pub my_str: String
+}
+
+#[derive(Debug)]
+struct MyCtx {
+    pub v1: String,
+    pub v2: u8,
+    pub v3: MyObj
+}
+
+trait MyNew {
+    fn new() -> Self;
+}
+
+impl MyNew for MyCtx {
+    fn new() -> Self {
+        MyCtx {
+            v1: String::from("sdfsdf"),
+            v2: 0,
+            v3: MyObj { my_str: String::from("sdfsdf") }
+        }
+    }
 }
 
 fn main() {
@@ -39,10 +61,22 @@ fn main() {
     /*let mut router = Router::new();
 
     router.add("/p2", Middleware::new()
-        .post_(|req, res, ctx| {
-            res.headers_mut().set_raw("h1", "v1");
-            println!("Hey3 {}", req.path());
-        })
+        .post::<MyCtx>(vec![
+            |req, res, ctx| {
+                ctx.insert("k1", Box::new("test_string"));
+                ctx.insert("k2", Box::new(MyObj {
+                    my_str: String::from("test_string2"),
+                }));
+            },
+
+            |req, res, ctx| {
+                let x: &str = ctx.get("k1").unwrap().downcast_ref::<&str>().unwrap();
+                let y: &MyObj = ctx.get("k2").unwrap().downcast_ref::<MyObj>().unwrap();
+
+                res.headers_mut().set_raw("h1", x);
+                res.headers_mut().set_raw("h2", y.my_str.as_str());
+            }
+        ])
     );
 
     let resp = router
@@ -51,37 +85,18 @@ fn main() {
 
     println!("{:#?}", resp);*/
 
-    let mut m: HashMap<&str, Box<Any>> = HashMap::new();
-    m.insert("x", Box::new(String::from("my val")));
+    test::<MyCtx>(vec![
+        |x, y| {
+            println!("{:?}", y);
+        }
+    ]);
 
-    /*let s = String::from("my str");
-    let y = 55;*/
-    /*m.insert("str", s);*/
-
-    //let x = test(&y);
-
-    //let r = test();
-
-    //println!("{:?}", r.downcast_ref::<String>());
-
-    //println!("{:?}", m.get("x").unwrap().downcast_ref::<String>());
-
-    //println!("{:?}", m.get_downcast_ref(&"x"));
-
-    //::<String>
-
-    //m.get_downcast_ref(&"x");
-    let ss = get_downcast_ref::<String>("x", m);
 }
 
+fn test<T: MyNew>(cb: Vec<fn(u8, &T)>) {
+    let y = T::new();
 
-fn test() -> Box<Any> {
-    /*if x.downcast_ref::<String>().is_some() {
-        println!("its string");
+    for x in cb {
+        x(1, &y)
     }
-
-    return 1*/
-    let s = String::from("sdfsfdsdf");
-
-    return Box::new(s);
 }

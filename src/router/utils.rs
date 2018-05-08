@@ -39,13 +39,14 @@ impl<K, V, S> InsertBoxed<K, V, S> for HashMap<K, V, S>
     }
 }
 
-pub fn get_downcast_ref<T>(key: &str, map: HashMap<&str, Box<Any>>) -> Option<&'static T> where T: Debug + 'static {
-    let x = map.get(key).unwrap();
+pub fn get_downcast_ref<T>(key: &str, map: HashMap<&'static str, Box<Any>>) -> Option<&'static T> where T: Debug + 'static {
+/*    let x = map.get(key).unwrap();
     let r = x.downcast_ref::<T>();
 
     println!("{:?}", r.unwrap());
 
-    return Some(r.unwrap());
+    return Some(r.unwrap());*/
+    return None;
 }
 
 //+ 'static
